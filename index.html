@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Kaprekar's constant</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            padding: 0;
+            margin: 0;
+        }
+        .container {
+            margin-top: 10px;
+            margin-left: 10px;
+        }
+        .container input {
+            margin-left: 10px;
+            padding: 5px;
+        }
+        .step {
+            margin-top: 10px;
+            margin-bottom: 10px;
+            padding: 10px;
+        }
+        .step li {
+            margin-top: 10px;
+            margin-left: 25px;
+        }
+        .container p {
+            margin-left: 10px;
+            margin-top: 10px;
+        }
+    </style>
+    <script>
+        const forbidden = ['0000', '1111', '2222', '3333', '4444', '5555', '6666', '7777', '8888', '9999'];
+        document.addEventListener('DOMContentLoaded', () => {
+            const inputText = document.getElementById('number');
+            inputText.addEventListener('input', (e) => {
+                const numVal = e.target.value;
+                const validationError = document.getElementsByClassName('validity')[0];
+                const containerDiv = document.getElementsByClassName('container')[0];
+                if (numVal === '') {
+                    validationError.innerHTML = '';
+                    containerDiv.removeChild(document.getElementById('reachedPara'));
+                    const allChildDivs = containerDiv.querySelectorAll('div');
+                    allChildDivs.forEach(childDiv => childDiv.remove());
+                    return;
+                }
+                // validations
+                // length should be 4 and a 4 digit number
+                // all digits should not be equal
+                // all numbers
+                if (numVal.length === 4 && parseInt(numVal, 10) >= 1000 && !forbidden.includes(numVal) && /^\d+$/.test(numVal)) {
+                    validationError.innerHTML = '';
+                    const reached = kaprekarRoutine(numVal);
+                    const reachedPara = document.createElement('p');
+                    reachedPara.id = 'reachedPara';
+                    if (reached) {
+                        reachedPara.textContent = 'We have reached Kaprekar\'s constant';
+                    } else {
+                        reachedPara.textContent = 'Bad code caught. I will update.';
+                    }
+                    containerDiv.appendChild(reachedPara);
+                } else {
+                    validationError.innerHTML = 'x';
+                }
+            });
+            /**
+             * goes through kapkrekar's routine
+             * finds largest number and smallest number with digits
+             * finds difference and recursively calls routine with difference until reaches 6174
+             * appends step wise data to show
+             * returns true if reaches constant or catches error and returns false.
+            */
+            const kaprekarRoutine = (value) => {
+                try {
+                    const containerDiv = document.getElementsByClassName('container')[0]; 
+                    const allDigits = value.split('');
+                    const largestNum = parseInt(allDigits.sort((a,b) => b-a).join(''));
+                    const smallestNum = parseInt(allDigits.sort().join(''));
+                    let diff = largestNum - smallestNum;
+                    const stepDiv = document.createElement('div');
+                    const stepUl = document.createElement('ul');
+                    const stepSpan = document.createElement('span');
+                    const stepUlLiLargestSum = document.createElement('li');
+                    const stepUlLiSmallestSum = document.createElement('li');
+                    const stepUlLiDiff = document.createElement('li');
+                    stepDiv.classList.add('step');
+                    stepSpan.textContent = 'starts with: ' + value;
+                    stepUlLiLargestSum.textContent = 'largest possbile arrangement: ' + largestNum;
+                    stepUlLiSmallestSum.textContent = 'smallest possible arrangement: ' + smallestNum;
+                    stepUlLiDiff.textContent = 'Difference: ' + diff;
+                    stepUl.appendChild(stepSpan);
+                    stepUl.appendChild(stepUlLiLargestSum);
+                    stepUl.appendChild(stepUlLiSmallestSum);
+                    stepUl.appendChild(stepUlLiDiff);
+                    stepDiv.appendChild(stepUl);
+                    containerDiv.appendChild(stepDiv);
+                    if (diff === 6174) {
+                        return true;
+                    } else {
+                        if (diff < 1000) {
+                            diff = '0'+ diff;
+                        } else {
+                            diff = diff + ''
+                        }
+                        return kaprekarRoutine(diff);
+                    }
+                } catch(err) {
+                    return false;
+                }
+            }
+        })
+    </script>
+</head>
+<body>
+    <div class="container">
+        <input type="text" class="numeric-input" name="number" id="number" placeholder="any four digit number" maxlength="4">
+        <span class="validity"></span>
+        <!-- <div class="step">
+            <ul>
+                <span>step 1: Start with </span>
+                <li>largest possible arrangement: </li>
+                <li>smallest possible arrangement:</li>
+                <li>Substract</li>
+            </ul>
+        </div> -->
+    </div>
+</body>
+</html>
